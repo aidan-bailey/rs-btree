@@ -33,7 +33,6 @@ pub struct BTree<T: Clone> {
 }
 
 impl<T: Clone> BTree<T> {
-
     /// Dimensionality of BTree
     pub fn k(&self) -> usize {
         self.k
