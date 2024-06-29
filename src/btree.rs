@@ -3,7 +3,13 @@
 #[derive(Clone)]
 pub struct LeafNode<T: Clone> {
     key: usize,
-    data: T,
+    value: T,
+}
+
+impl<T: Clone> LeafNode<T> {
+    pub fn new(key: usize, value: T) -> LeafNode<T> {
+        LeafNode { key, value }
+    }
 }
 
 #[derive(Clone)]
@@ -24,6 +30,13 @@ impl<T: Clone> InternalNode<T> {
             leaves: vec![None; k],
         }
     }
+
+    pub fn with_keyval(k: usize, key: usize, value: T) -> InternalNode<T> {
+        let mut node = InternalNode::<T>::new(k);
+        node.keys[0] = Some(key);
+        node.leaves[0] = Some(LeafNode::<T>::new(key, value));
+        node
+    }
 }
 
 /// BTree
@@ -38,8 +51,15 @@ impl<T: Clone> BTree<T> {
         self.k
     }
 
-    /// Construct an empty `k`-dimensional BTree containing data of a specified type `T`
+    /// Construct an empty `k`-dimensional BTree containing value of a specified type `T`
     pub fn new(k: usize) -> BTree<T> {
         BTree { k, root: None }
+    }
+
+    /// Insert a new `value` of type `T` with a corresponding `key`
+    pub fn insert(mut self, key: usize, value: T) {
+        if self.root.is_none() {
+            self.root = Some(InternalNode::<T>::with_keyval(self.k, key, value))
+        }
     }
 }
