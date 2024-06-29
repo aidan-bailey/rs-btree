@@ -13,13 +13,18 @@ impl<T: Clone> LeafNode<T> {
         LeafNode { key, value }
     }
 
-    /// Get the key of the leaf node
-    pub fn key(&self) -> usize {
+    /// Get the key
+    pub fn key(self) -> usize {
         self.key
     }
 
-    /// Get the key of the leaf node
-    pub fn value(&self) -> &T {
+    /// Get the value
+    pub fn value(self) -> T {
+        self.value.clone()
+    }
+
+    /// Peak at the value
+    pub fn peak(&self) -> &T {
         &self.value
     }
 
