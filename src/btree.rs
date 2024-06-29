@@ -22,15 +22,16 @@ pub struct BTree<T: Clone> {
 }
 
 impl<T: Clone> BTree<T> {
-
     /// Construct an empty `k`-dimensional BTree containing data of a specified type `T`
     pub fn new(k: usize) -> BTree<T> {
-        BTree {k, root:InternalNode {
+        BTree {
             k,
-            keys: vec![None; k],
-            children: vec![None; k],
-            leaves: vec![None; k],
-        }}
+            root: InternalNode {
+                k,
+                keys: vec![None; k],
+                children: vec![None; k],
+                leaves: vec![None; k],
+            },
+        }
     }
-
 }
