@@ -18,20 +18,12 @@ pub struct InternalNode<T: Clone> {
 /// BTree
 pub struct BTree<T: Clone> {
     k: usize,
-    root: InternalNode<T>,
+    root: Option<InternalNode<T>>,
 }
 
 impl<T: Clone> BTree<T> {
     /// Construct an empty `k`-dimensional BTree containing data of a specified type `T`
     pub fn new(k: usize) -> BTree<T> {
-        BTree {
-            k,
-            root: InternalNode {
-                k,
-                keys: vec![None; k],
-                children: vec![None; k],
-                leaves: vec![None; k],
-            },
-        }
+        BTree { k, root: None }
     }
 }
