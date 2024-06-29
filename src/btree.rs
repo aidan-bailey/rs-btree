@@ -7,7 +7,7 @@ pub struct LeafNode<T: Clone> {
 }
 
 #[derive(Clone)]
-// BTree internal node
+/// BTree internal node
 pub struct InternalNode<T: Clone> {
     k: usize,
     keys: Vec<Option<usize>>,
@@ -15,7 +15,7 @@ pub struct InternalNode<T: Clone> {
     leaves: Vec<Option<LeafNode<T>>>,
 }
 
-// BTree
+/// BTree
 pub struct BTree<T: Clone> {
     k: usize,
     root: InternalNode<T>,
@@ -23,7 +23,7 @@ pub struct BTree<T: Clone> {
 
 impl<T: Clone> BTree<T> {
 
-    // Construct an empty k-dimensional BTree
+    /// Construct an empty `k`-dimensional BTree containing data of a specified type `T`
     pub fn new(k: usize) -> BTree<T> {
         BTree {k, root:InternalNode {
             k,
