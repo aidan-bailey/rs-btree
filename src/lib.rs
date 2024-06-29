@@ -2,8 +2,8 @@ pub mod btree;
 
 #[cfg(test)]
 mod tests {
+    use crate::btree::btree::BTree;
 
-    use crate::btree::BTree;
 
     #[test]
     fn construct_empty_btree() {
