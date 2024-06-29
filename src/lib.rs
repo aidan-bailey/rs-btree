@@ -6,15 +6,13 @@ mod tests {
 
 
     #[test]
-    fn construct_empty_btree() {
-        let btree = BTree::<i32>::new(1);
-        assert_eq!(1, btree.k())
+    fn simple_btree() {
+        let mut btree = BTree::<i32>::new(1);
+        assert_eq!(1, btree.k());
+        btree.insert(1, 4);
+
+        let val = btree.find(&1);
+        assert_eq!(4, val.unwrap());
     }
 
-    #[test]
-    fn insert_into_empty_btree() {
-        let btree = BTree::<i32>::new(1);
-        btree.insert(1, 1);
-        // TODO: Flesh this out
-    }
 }

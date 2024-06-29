@@ -1,6 +1,6 @@
 //! Leaf Node
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct LeafNode<T: Clone> {
     key: usize,
     value: T,
@@ -14,17 +14,12 @@ impl<T: Clone> LeafNode<T> {
     }
 
     /// Get the key
-    pub fn key(self) -> usize {
-        self.key
+    pub fn key(&self) -> &usize {
+        &self.key
     }
 
     /// Get the value
-    pub fn value(self) -> T {
-        self.value.clone()
-    }
-
-    /// Peak at the value
-    pub fn peak(&self) -> &T {
+    pub fn value(&self) -> &T {
         &self.value
     }
 

@@ -16,7 +16,7 @@ impl<T: Clone> InternalNode<T> {
         InternalNode {
             k,
             keys: vec![None; k],
-            children: vec![None; k],
+            children: vec![None; k + 1],
             leaves: vec![None; k],
         }
     }
@@ -28,4 +28,35 @@ impl<T: Clone> InternalNode<T> {
         node
     }
 
+    pub fn find(&self, key: &usize) -> Option<T> {
+        for i in 0..self.k {
+            match &self.keys[i] {
+                Some(nkey) => {
+                    if key == nkey {
+                        match &self.leaves[i] {
+                            Some(leaf) => return Some(leaf.value().clone()),
+                            _ => panic!("Missing leaf"),
+                        }
+                    } else if key < nkey {
+                        match &self.children[i] {
+                            Some(child) => return child.find(key),
+                            _ => return None,
+                        }
+                    } else {
+                        continue;
+                    }
+                }
+                _ => match &self.children[i] {
+                    Some(child) => return child.find(key),
+                    _ => return None,
+                },
+            }
+        }
+
+        if let Some(child) = &self.children[self.k] {
+            return child.find(key);
+        }
+
+        None
+    }
 }

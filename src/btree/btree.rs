@@ -20,9 +20,16 @@ impl<T: Clone> BTree<T> {
     }
 
     /// Insert a new `value` of type `T` with a corresponding `key`
-    pub fn insert(mut self, key: usize, value: T) {
+    pub fn insert(&mut self, key: usize, value: T) {
         if self.root.is_none() {
             self.root = Some(InternalNode::<T>::with_keyval(self.k, key, value))
         }
+    }
+
+    pub fn find(&self, key: &usize) -> Option<T>  {
+        if let Some(node) = &self.root {
+            return node.find(key)
+        }
+        None
     }
 }
