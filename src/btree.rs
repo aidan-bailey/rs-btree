@@ -33,6 +33,12 @@ pub struct BTree<T: Clone> {
 }
 
 impl<T: Clone> BTree<T> {
+
+    /// Dimensionality of BTree
+    pub fn k(&self) -> usize {
+        self.k
+    }
+
     /// Construct an empty `k`-dimensional BTree containing data of a specified type `T`
     pub fn new(k: usize) -> BTree<T> {
         BTree { k, root: None }
