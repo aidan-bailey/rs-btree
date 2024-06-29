@@ -15,6 +15,17 @@ pub struct InternalNode<T: Clone> {
     leaves: Vec<Option<LeafNode<T>>>,
 }
 
+impl<T: Clone> InternalNode<T> {
+    pub fn new(k: usize) -> InternalNode<T> {
+        InternalNode {
+            k,
+            keys: vec![None; k],
+            children: vec![None; k],
+            leaves: vec![None; k],
+        }
+    }
+}
+
 /// BTree
 pub struct BTree<T: Clone> {
     k: usize,
