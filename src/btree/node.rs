@@ -21,6 +21,10 @@ impl<T: Clone> Node<T> {
         }
     }
 
+    pub fn is_leaf(&self) -> bool{
+        self.children.iter().all(|x| x.is_none())
+    }
+
     pub fn with_record(k: usize, record: Record<T>) -> Node<T> {
         let mut node = Node::<T>::new(k);
         node.keys[0] = Some(record.key().clone());
