@@ -13,7 +13,52 @@ pub struct InternalNode<T: Clone> {
 
 impl<T: Clone> Node<T> for InternalNode<T> {
     fn find(&self, key: &usize) -> Result<Option<&Record<T>>, &'static str> {
-        todo!()
+        for i in 0..self.k {
+            match &self.keys[i] {
+                Some(nkey) => {
+                    if key == nkey {
+                        match &self.records[i] {
+                            Some(record) => return Ok(Some(record)),
+                            None => return Err("Record is missing"),
+                        }
+                    } else if key < nkey {
+                        match &self.children[i] {
+                            Some(child) => {
+                                if let BTreeNode::Leaf(leaf) = child {
+                                    return leaf.find(key);
+                                } else if let BTreeNode::Internal(internal) = child {
+                                    return internal.find(key);
+                                }
+                            }
+                            None => return Ok(None),
+                        }
+                    } else {
+                        continue;
+                    }
+                }
+                None => {
+                    if let Some(child) = &self.children[i] {
+                        if let BTreeNode::Leaf(leaf) = child {
+                            return leaf.find(key);
+                        } else if let BTreeNode::Internal(internal) = child {
+                            return internal.find(key);
+                        }
+                    } else {
+                        return Ok(None);
+                    }
+                }
+            }
+        }
+
+        if let Some(child) = &self.children[self.k] {
+            if let BTreeNode::Leaf(leaf) = child {
+                return leaf.find(key);
+            } else if let BTreeNode::Internal(internal) = child {
+                return internal.find(key);
+            }
+        }
+
+        Ok(None)
     }
 }
 
