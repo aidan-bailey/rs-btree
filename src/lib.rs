@@ -15,6 +15,9 @@ mod tests {
         assert!(result.is_ok());
         assert!(result.unwrap().is_some());
         assert_eq!(1, result.unwrap().unwrap().key().clone());
+        let result2 = btree.find(&2);
+        assert!(result2.is_ok());
+        assert!(result2.unwrap().is_none());
     }
 
 }
