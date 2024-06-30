@@ -1,14 +1,13 @@
 //! BTree
 
 use super::{
-    btree_node::BTreeNode, internal_node::InternalNode, leaf_node::LeafNode, node::Node,
-    record::Record,
+    node::Node, record::Record,
 };
 
 /// BTree
 pub struct BTree<T: Clone> {
     k: usize,
-    root: Option<BTreeNode<T>>,
+    root: Option<Node<T>>,
 }
 
 impl<T: Clone> BTree<T> {
@@ -26,16 +25,13 @@ impl<T: Clone> BTree<T> {
     /// Insert a new `value` of type `T` with a corresponding `key`
     pub fn insert(&mut self, record: Record<T>) {
         if self.root.is_none() {
-            self.root = Some(BTreeNode::Leaf(LeafNode::<T>::with_record(self.k, record)))
+            self.root = Some(Node::<T>::with_record(self.k, record))
         }
     }
 
     pub fn find(&self, key: &usize) -> Result<Option<&Record<T>>, &'static str> {
         if let Some(node) = &self.root {
-            match node {
-                BTreeNode::Internal(node) => return node.find(key),
-                BTreeNode::Leaf(node) => return node.find(key),
-            }
+            return node.find(key);
         }
         Ok(None)
     }
