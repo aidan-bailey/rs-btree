@@ -7,19 +7,19 @@ use super::{
 /// BTree
 #[derive(Debug)]
 pub struct BTree<T: Clone> {
-    k: usize,
-    root: Node<T>,
+    t: usize,
+    pub(crate) root: Node<T>,
 }
 
 impl<T: Clone> BTree<T> {
-    /// Dimensionality of BTree
-    pub fn k(&self) -> usize {
-        self.k
+    /// minimum degree of BTree
+    pub fn t(&self) -> usize {
+        self.t
     }
 
-    /// Construct an empty `k`-dimensional BTree containing value of a specified type `T`
-    pub fn new(k: usize) -> BTree<T> {
-        BTree::<T> { k, root: Node::<T>::new(k) }
+    /// Construct an empty BTree with a minimum degree `t` containing value of a specified type `T`
+    pub fn new(t: usize) -> BTree<T> {
+        BTree::<T> { t, root: Node::<T>::new(t) }
     }
 
     fn split_root(&mut self) -> Result<(), &'static str> {
@@ -29,7 +29,7 @@ impl<T: Clone> BTree<T> {
         }
 
         // construct new child of root
-        let mut s = Node::<T>::new(self.k);
+        let mut s = Node::<T>::new(self.t);
 
         // move all of roots keys
         while !self.root.keys.is_empty() {

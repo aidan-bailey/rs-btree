@@ -5,16 +5,16 @@ use super::record::Record;
 #[derive(Clone, Debug)]
 /// BTree internal node
 pub struct Node<T: Clone> {
-    k: usize,
+    t: usize,
     pub(crate) keys: Vec<usize>,
     pub(crate) records: Vec<Record<T>>,
     pub(crate) children: Vec<Node<T>>,
 }
 
 impl<T: Clone> Node<T> {
-    pub fn new(k: usize) -> Node<T> {
+    pub fn new(t: usize) -> Node<T> {
         Node {
-            k,
+            t,
             keys: Vec::<usize>::new(),
             records: vec![],
             children: vec![],
@@ -31,13 +31,8 @@ impl<T: Clone> Node<T> {
         self.keys.len()
     }
 
-    /// Minimium degree
-    pub fn t(&self) -> usize {
-        self.k / 2
-    }
-
     pub fn full(&self) -> bool {
-        self.keys.len() == (self.k - 1)
+        self.n() == self.t * 2 - 1
     }
 
     pub fn empty(&self) -> bool {
@@ -52,19 +47,18 @@ impl<T: Clone> Node<T> {
     }
 
     pub(crate) fn split_child(&mut self, i: usize) -> Result<(), &'static str> {
-
         if self.full() {
-            return Err("No space for child's key")
+            return Err("No space for child's key");
         }
 
         if self.children.get(i).is_none() {
-            return Err("Child does not exist")
+            return Err("Child does not exist");
         }
 
-        let t = self.t();
+        let t = self.t;
 
         // construct new child node
-        let mut z = Node::<T>::new(self.k);
+        let mut z = Node::<T>::new(self.t);
 
         // scope for borrowing a mutable y
         {
@@ -72,7 +66,7 @@ impl<T: Clone> Node<T> {
             let y = &mut self.children[i];
 
             // z gets ys greatest keys
-            for _j in 0..t {
+            for _j in 0..(t - 1) {
                 if let Some(key) = y.keys.pop() {
                     z.keys.insert(0, key)
                 } else {
@@ -82,7 +76,7 @@ impl<T: Clone> Node<T> {
 
             // move greatest children
             if !y.leaf() {
-                for _j in 0..(t + 1) {
+                for _j in 0..(t) {
                     if let Some(child) = y.children.pop() {
                         z.children.insert(0, child)
                     } else {
@@ -91,18 +85,30 @@ impl<T: Clone> Node<T> {
                 }
             }
 
-            // insert median key
-            self.keys.insert(i, y.keys[t - 1]);
+            // move median key to parent
+            if let Some(key) = y.keys.pop() {
+                if (i + 1) >= self.n() {
+                    self.keys.push(key)
+                } else {
+                    self.keys.insert(i + 1, key)
+                }
+            } else {
+                return Err("Missing key");
+            }
         }
 
         // insert z as child
-        self.children.insert(i, z);
+
+        if (i + 1) >= self.n() {
+            self.children.push(z);
+        } else {
+            self.children.insert(i + 1, z);
+        }
 
         Ok(())
     }
 
-    pub(crate) fn insert_nonfull(& mut self, record: Record<T>) -> Result<(), &'static str> {
-
+    pub(crate) fn insert_nonfull(&mut self, record: Record<T>) -> Result<(), &'static str> {
         if self.full() {
             return Err("Node is full");
         }
@@ -117,26 +123,28 @@ impl<T: Clone> Node<T> {
                 while i < self.n() && record.key() >= self.keys[i] {
                     i += 1
                 }
-                self.keys.insert(i, record.key());
-                self.records.insert(i, record);
+                if i >= self.n() {
+                    self.keys.push(record.key());
+                    self.records.push(record);
+                } else {
+                    self.keys.insert(i, record.key());
+                    self.records.insert(i, record);
+                }
             }
-
-        }
-        else {
+        } else {
             while i < self.n() && record.key() >= self.keys[i] {
                 i += 1
             }
-            if self.children[i].full() {
+            if i != self.n() && self.children[i].full() {
                 let _ = self.split_child(i);
                 if record.key() > self.keys[i] {
                     i += 1
                 }
             }
-            return self.children[i].insert_nonfull(record)
+            return self.children[i].insert_nonfull(record);
         }
 
         Ok(())
-
     }
 
     pub fn search(&self, key: usize) -> Result<Option<(&Node<T>, usize)>, &'static str> {
