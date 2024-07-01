@@ -29,9 +29,9 @@ impl<T: Clone> BTree<T> {
         }
     }
 
-    pub fn find(&self, key: &usize) -> Result<Option<&Record<T>>, &'static str> {
+    pub fn search(&self, key: usize) -> Result<Option<(&Node<T>, usize)>, &'static str> {
         if let Some(node) = &self.root {
-            return node.find(key);
+            return node.search(key);
         }
         Ok(None)
     }
