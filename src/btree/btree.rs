@@ -5,6 +5,7 @@ use super::{
 };
 
 /// BTree
+#[derive(Debug)]
 pub struct BTree<T: Clone> {
     k: usize,
     root: Node<T>,
@@ -53,7 +54,13 @@ impl<T: Clone> BTree<T> {
 
     /// Insert a new `value` of type `T` with a corresponding `key`
     pub fn insert(&mut self, record: Record<T>) -> Result<(), &'static str> {
-        self.root.insert(record)
+        if self.root.full() {
+            let result = self.split_root();
+            if result.is_err() {
+                return result;
+            }
+        }
+        self.root.insert_nonfull(record)
     }
 
     pub fn search(&self, key: usize) -> Result<Option<(&Node<T>, usize)>, &'static str> {

@@ -1,4 +1,4 @@
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Record<T> {
     key: usize,
     value: T,
@@ -9,8 +9,8 @@ impl<T> Record<T> {
         Record { key, value }
     }
 
-    pub fn key(&self) -> &usize {
-        &self.key
+    pub fn key(&self) -> usize {
+        self.key
     }
 
     pub fn value(&self) -> &T {

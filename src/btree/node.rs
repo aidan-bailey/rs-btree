@@ -2,7 +2,7 @@
 
 use super::record::Record;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 /// BTree internal node
 pub struct Node<T: Clone> {
     k: usize,
@@ -37,7 +37,11 @@ impl<T: Clone> Node<T> {
     }
 
     pub fn full(&self) -> bool {
-        self.keys.len() == self.k
+        self.keys.len() == (self.k - 1)
+    }
+
+    pub fn empty(&self) -> bool {
+        self.keys.is_empty()
     }
 
     pub fn with_record(k: usize, record: Record<T>) -> Node<T> {
@@ -97,8 +101,42 @@ impl<T: Clone> Node<T> {
         Ok(())
     }
 
-    pub fn insert(&self, record: Record<T>) -> Result<(), &'static str> {
-        todo!()
+    pub(crate) fn insert_nonfull(& mut self, record: Record<T>) -> Result<(), &'static str> {
+
+        if self.full() {
+            return Err("Node is full");
+        }
+
+        let mut i = 0;
+
+        if self.leaf() {
+            if self.empty() {
+                self.keys.push(record.key().clone());
+                self.records.push(record)
+            } else {
+                while i < self.n() && record.key() >= self.keys[i] {
+                    i += 1
+                }
+                self.keys.insert(i, record.key());
+                self.records.insert(i, record);
+            }
+
+        }
+        else {
+            while i < self.n() && record.key() >= self.keys[i] {
+                i += 1
+            }
+            if self.children[i].full() {
+                let _ = self.split_child(i);
+                if record.key() > self.keys[i] {
+                    i += 1
+                }
+            }
+            return self.children[i].insert_nonfull(record)
+        }
+
+        return Ok(())
+
     }
 
     pub fn search(&self, key: usize) -> Result<Option<(&Node<T>, usize)>, &'static str> {
