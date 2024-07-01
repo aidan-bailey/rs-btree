@@ -24,10 +24,6 @@ impl<KT: Ord + Copy, DT: Clone> BTree<KT, DT> {
 
     fn split_root(&mut self) -> Result<(), &'static str> {
 
-        if !self.root.leaf() {
-            return Err("Root node is not a leaf node");
-        }
-
         // construct new child of root
         let mut s = Node::<KT, DT>::new(self.t);
 
@@ -42,6 +38,13 @@ impl<KT: Ord + Copy, DT: Clone> BTree<KT, DT> {
         while !self.root.records.is_empty() {
             if let Some(record) = self.root.records.pop() {
                 s.records.insert(0, record);
+            }
+        }
+
+        // move all of roots children
+        while !self.root.children.is_empty() {
+            if let Some(child) = self.root.children.pop() {
+                s.children.insert(0, child);
             }
         }
 

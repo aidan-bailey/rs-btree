@@ -55,6 +55,7 @@ impl<KT: Ord + Copy, DT: Clone> Node<KT, DT> {
             return Err("Child does not exist");
         }
 
+        // t is the midpoint
         let t = self.t;
 
         // construct new child node
@@ -66,7 +67,7 @@ impl<KT: Ord + Copy, DT: Clone> Node<KT, DT> {
             let y = &mut self.children[i];
 
             // z gets ys greatest keys
-            for _j in 0..(t - 1) {
+            for _j in t..y.n() {
                 if let Some(key) = y.keys.pop() {
                     z.keys.insert(0, key)
                 } else {
@@ -76,7 +77,7 @@ impl<KT: Ord + Copy, DT: Clone> Node<KT, DT> {
 
             // move greatest children
             if !y.leaf() {
-                for _j in 0..(t) {
+                for _j in 0..t {
                     if let Some(child) = y.children.pop() {
                         z.children.insert(0, child)
                     } else {
@@ -87,14 +88,14 @@ impl<KT: Ord + Copy, DT: Clone> Node<KT, DT> {
 
             // move median key to parent
             if let Some(key) = y.keys.pop() {
-                if (i + 1) >= self.n() {
-                    self.keys.push(key)
-                } else {
-                    self.keys.insert(i + 1, key)
-                }
+                self.keys.insert(i, key)
             } else {
                 return Err("Missing key");
             }
+            
+            debug_assert!(y.leaf() || (y.keys.len() + 1 == y.children.len()));
+            debug_assert!(z.leaf() || (z.keys.len() + 1 == z.children.len()));
+
         }
 
         // insert z as child
@@ -105,13 +106,15 @@ impl<KT: Ord + Copy, DT: Clone> Node<KT, DT> {
             self.children.insert(i + 1, z);
         }
 
+        debug_assert!(self.leaf() || (self.keys.len() + 1 == self.children.len()));
+
         Ok(())
     }
 
     pub(crate) fn insert_nonfull(&mut self, record: Record<KT, DT>) -> Result<(), &'static str> {
-        if self.full() {
-            return Err("Node is full");
-        }
+
+        debug_assert!(!self.full(), "Attempt to insert_nonfull on a full node");
+        //debug_assert!(self.leaf() || (self.children.len() == self.n() + 1), "Internal node does not have enough children");
 
         let mut i = 0;
 
@@ -135,12 +138,14 @@ impl<KT: Ord + Copy, DT: Clone> Node<KT, DT> {
             while i < self.n() && record.key() >= self.keys[i] {
                 i += 1
             }
-            if i != self.n() && self.children[i].full() {
-                let _ = self.split_child(i);
+
+            if self.children[i].full() {
+                self.split_child(i)?;
                 if record.key() > self.keys[i] {
                     i += 1
                 }
             }
+
             return self.children[i].insert_nonfull(record);
         }
 
