@@ -6,20 +6,20 @@ use super::{
 
 /// BTree
 #[derive(Debug)]
-pub struct BTree<T: Clone> {
+pub struct BTree<KT: Ord + Copy, DT: Clone> {
     t: usize,
-    pub(crate) root: Node<T>,
+    pub(crate) root: Node<KT, DT>,
 }
 
-impl<T: Clone> BTree<T> {
+impl<KT: Ord + Copy, DT: Clone> BTree<KT, DT> {
     /// minimum degree of BTree
     pub fn t(&self) -> usize {
         self.t
     }
 
     /// Construct an empty BTree with a minimum degree `t` containing value of a specified type `T`
-    pub fn new(t: usize) -> BTree<T> {
-        BTree::<T> { t, root: Node::<T>::new(t) }
+    pub fn new(t: usize) -> BTree<KT, DT> {
+        BTree::<KT, DT> { t, root: Node::<KT, DT>::new(t) }
     }
 
     fn split_root(&mut self) -> Result<(), &'static str> {
@@ -29,7 +29,7 @@ impl<T: Clone> BTree<T> {
         }
 
         // construct new child of root
-        let mut s = Node::<T>::new(self.t);
+        let mut s = Node::<KT, DT>::new(self.t);
 
         // move all of roots keys
         while !self.root.keys.is_empty() {
@@ -53,7 +53,7 @@ impl<T: Clone> BTree<T> {
     }
 
     /// Insert a new `value` of type `T` with a corresponding `key`
-    pub fn insert(&mut self, record: Record<T>) -> Result<(), &'static str> {
+    pub fn insert(&mut self, record: Record<KT, DT>) -> Result<(), &'static str> {
         if self.root.full() {
             let result = self.split_root();
             result?;
@@ -61,7 +61,7 @@ impl<T: Clone> BTree<T> {
         self.root.insert_nonfull(record)
     }
 
-    pub fn search(&self, key: usize) -> Result<Option<(&Node<T>, usize)>, &'static str> {
+    pub fn search(&self, key: KT) -> Result<Option<(&Node<KT, DT>, usize)>, &'static str> {
         self.root.search(key)
     }
 }

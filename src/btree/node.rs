@@ -4,18 +4,18 @@ use super::record::Record;
 
 #[derive(Clone, Debug)]
 /// BTree internal node
-pub struct Node<T: Clone> {
+pub struct Node<KT: Ord + Copy, DT: Clone> {
     t: usize,
-    pub(crate) keys: Vec<usize>,
-    pub(crate) records: Vec<Record<T>>,
-    pub(crate) children: Vec<Node<T>>,
+    pub(crate) keys: Vec<KT>,
+    pub(crate) records: Vec<Record<KT, DT>>,
+    pub(crate) children: Vec<Node<KT, DT>>,
 }
 
-impl<T: Clone> Node<T> {
-    pub fn new(t: usize) -> Node<T> {
+impl<KT: Ord + Copy, DT: Clone> Node<KT, DT> {
+    pub fn new(t: usize) -> Node<KT, DT> {
         Node {
             t,
-            keys: Vec::<usize>::new(),
+            keys: vec![],
             records: vec![],
             children: vec![],
         }
@@ -39,8 +39,8 @@ impl<T: Clone> Node<T> {
         self.keys.is_empty()
     }
 
-    pub fn with_record(k: usize, record: Record<T>) -> Node<T> {
-        let mut node = Node::<T>::new(k);
+    pub fn with_record(t: usize, record: Record<KT, DT>) -> Node<KT, DT> {
+        let mut node = Node::<KT, DT>::new(t);
         node.keys.push(record.key());
         node.records.push(record);
         node
@@ -58,7 +58,7 @@ impl<T: Clone> Node<T> {
         let t = self.t;
 
         // construct new child node
-        let mut z = Node::<T>::new(self.t);
+        let mut z = Node::<KT, DT>::new(self.t);
 
         // scope for borrowing a mutable y
         {
@@ -108,7 +108,7 @@ impl<T: Clone> Node<T> {
         Ok(())
     }
 
-    pub(crate) fn insert_nonfull(&mut self, record: Record<T>) -> Result<(), &'static str> {
+    pub(crate) fn insert_nonfull(&mut self, record: Record<KT, DT>) -> Result<(), &'static str> {
         if self.full() {
             return Err("Node is full");
         }
@@ -147,7 +147,7 @@ impl<T: Clone> Node<T> {
         Ok(())
     }
 
-    pub fn search(&self, key: usize) -> Result<Option<(&Node<T>, usize)>, &'static str> {
+    pub fn search(&self, key: KT) -> Result<Option<(&Node<KT, DT>, usize)>, &'static str> {
         // initialise the index
         let mut i: usize = 0;
 

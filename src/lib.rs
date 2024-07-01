@@ -8,7 +8,7 @@ mod tests {
     fn simple_insert() {
         // Insert 1 -> 2 -> 3 -> 4
 
-        let mut btree = BTree::<i32>::new(2);
+        let mut btree = BTree::<i32, i32>::new(2);
         assert_eq!(2, btree.t());
         assert!(btree.root.leaf());
 
