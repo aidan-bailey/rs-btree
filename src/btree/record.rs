@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 #[derive(Clone, Debug)]
 pub struct Record<T> {
     key: usize,

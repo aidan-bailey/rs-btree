@@ -34,14 +34,14 @@ impl<T: Clone> BTree<T> {
         // move all of roots keys
         while !self.root.keys.is_empty() {
              if let Some(key) = self.root.keys.pop() {
-                s.keys.push(key);
+                s.keys.insert(0, key);
             }
         }
 
         // move all of roots records
         while !self.root.records.is_empty() {
             if let Some(record) = self.root.records.pop() {
-                s.records.push(record);
+                s.records.insert(0, record);
             }
         }
 
@@ -56,9 +56,7 @@ impl<T: Clone> BTree<T> {
     pub fn insert(&mut self, record: Record<T>) -> Result<(), &'static str> {
         if self.root.full() {
             let result = self.split_root();
-            if result.is_err() {
-                return result;
-            }
+            result?;
         }
         self.root.insert_nonfull(record)
     }

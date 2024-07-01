@@ -15,7 +15,7 @@ impl<T: Clone> Node<T> {
     pub fn new(k: usize) -> Node<T> {
         Node {
             k,
-            keys: vec![],
+            keys: Vec::<usize>::new(),
             records: vec![],
             children: vec![],
         }
@@ -46,7 +46,7 @@ impl<T: Clone> Node<T> {
 
     pub fn with_record(k: usize, record: Record<T>) -> Node<T> {
         let mut node = Node::<T>::new(k);
-        node.keys.push(record.key().clone());
+        node.keys.push(record.key());
         node.records.push(record);
         node
     }
@@ -72,9 +72,9 @@ impl<T: Clone> Node<T> {
             let y = &mut self.children[i];
 
             // z gets ys greatest keys
-            for _j in 0..(t - 2) {
+            for _j in 0..t {
                 if let Some(key) = y.keys.pop() {
-                    z.keys.push(key)
+                    z.keys.insert(0, key)
                 } else {
                     return Err("Missing key");
                 }
@@ -82,9 +82,9 @@ impl<T: Clone> Node<T> {
 
             // move greatest children
             if !y.leaf() {
-                for _j in 0..(t - 1) {
+                for _j in 0..(t + 1) {
                     if let Some(child) = y.children.pop() {
-                        z.children.push(child)
+                        z.children.insert(0, child)
                     } else {
                         return Err("Missing child");
                     }
@@ -92,7 +92,7 @@ impl<T: Clone> Node<T> {
             }
 
             // insert median key
-            self.keys.insert(i, y.keys[t - 2]);
+            self.keys.insert(i, y.keys[t - 1]);
         }
 
         // insert z as child
@@ -111,7 +111,7 @@ impl<T: Clone> Node<T> {
 
         if self.leaf() {
             if self.empty() {
-                self.keys.push(record.key().clone());
+                self.keys.push(record.key());
                 self.records.push(record)
             } else {
                 while i < self.n() && record.key() >= self.keys[i] {
@@ -135,7 +135,7 @@ impl<T: Clone> Node<T> {
             return self.children[i].insert_nonfull(record)
         }
 
-        return Ok(())
+        Ok(())
 
     }
 
