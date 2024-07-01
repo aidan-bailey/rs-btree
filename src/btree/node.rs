@@ -6,9 +6,9 @@ use super::record::Record;
 /// BTree internal node
 pub struct Node<T: Clone> {
     k: usize,
-    keys: Vec<usize>,
-    records: Vec<Record<T>>,
-    children: Vec<Node<T>>,
+    pub(crate) keys: Vec<usize>,
+    pub(crate) records: Vec<Record<T>>,
+    pub(crate) children: Vec<Node<T>>,
 }
 
 impl<T: Clone> Node<T> {
@@ -47,7 +47,7 @@ impl<T: Clone> Node<T> {
         node
     }
 
-    fn split_child(&mut self, i: usize) -> Result<(), &'static str> {
+    pub(crate) fn split_child(&mut self, i: usize) -> Result<(), &'static str> {
 
         if self.full() {
             return Err("No space for child's key")
@@ -95,6 +95,10 @@ impl<T: Clone> Node<T> {
         self.children.insert(i, z);
 
         Ok(())
+    }
+
+    pub fn insert(&self, record: Record<T>) -> Result<(), &'static str> {
+        todo!()
     }
 
     pub fn search(&self, key: usize) -> Result<Option<(&Node<T>, usize)>, &'static str> {
