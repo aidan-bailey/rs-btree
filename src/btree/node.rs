@@ -31,6 +31,15 @@ impl<T: Clone> Node<T> {
         self.keys.len()
     }
 
+    /// Minimium degree
+    pub fn t(&self) -> usize {
+        self.k / 2
+    }
+
+    pub fn full(&self) -> bool {
+        self.keys.len() == self.k
+    }
+
     pub fn with_record(k: usize, record: Record<T>) -> Node<T> {
         let mut node = Node::<T>::new(k);
         node.keys.push(record.key().clone());
@@ -38,8 +47,57 @@ impl<T: Clone> Node<T> {
         node
     }
 
-    pub fn search(&self, key: usize) -> Result<Option<(&Node<T>, usize)>, &'static str> {
+    fn split_child(&mut self, i: usize) -> Result<(), &'static str> {
 
+        if self.full() {
+            return Err("No space for child's key")
+        }
+
+        if self.children.get(i).is_none() {
+            return Err("Child does not exist")
+        }
+
+        let t = self.t();
+
+        // construct new child node
+        let mut z = Node::<T>::new(self.k);
+
+        // scope for borrowing a mutable y
+        {
+            // get child to split
+            let y = &mut self.children[i];
+
+            // z gets ys greatest keys
+            for _j in 0..(t - 2) {
+                if let Some(key) = y.keys.pop() {
+                    z.keys.push(key)
+                } else {
+                    return Err("Missing key");
+                }
+            }
+
+            // move greatest children
+            if !y.leaf() {
+                for _j in 0..(t - 1) {
+                    if let Some(child) = y.children.pop() {
+                        z.children.push(child)
+                    } else {
+                        return Err("Missing child");
+                    }
+                }
+            }
+
+            // insert median key
+            self.keys.insert(i, y.keys[t - 2]);
+        }
+
+        // insert z as child
+        self.children.insert(i, z);
+
+        Ok(())
+    }
+
+    pub fn search(&self, key: usize) -> Result<Option<(&Node<T>, usize)>, &'static str> {
         // initialise the index
         let mut i: usize = 0;
 
@@ -61,6 +119,5 @@ impl<T: Clone> Node<T> {
         // a greater than key has been found,
         // we must continue down the tree
         self.children[i].search(key)
-
     }
 }
