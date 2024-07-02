@@ -12,6 +12,10 @@ pub struct Node<KT: Ord + Copy, DT: Clone> {
 }
 
 impl<KT: Ord + Copy, DT: Clone> Node<KT, DT> {
+    /*
+     * CONSTRUCTOR
+     */
+
     pub fn new(t: usize) -> Node<KT, DT> {
         Node {
             t,
@@ -21,30 +25,33 @@ impl<KT: Ord + Copy, DT: Clone> Node<KT, DT> {
         }
     }
 
-    /// Whether or not the node is a leaf
+    /*
+     * PUBLIC METHODS
+     */
+
+    /// Returns true if-and-only-if the node is a leaf
     pub fn leaf(&self) -> bool {
         self.children.is_empty()
     }
 
-    /// Number of keys contained in the node
+    /// Returns the number of keys contained in the node
     pub fn n(&self) -> usize {
         self.keys.len()
     }
 
+    /// Returns true if-and-only-if the node has 2t - 1 keys
     pub fn full(&self) -> bool {
         self.n() == self.t * 2 - 1
     }
 
+    /// Returns true if-and-only-if the node contains no keys
     pub fn empty(&self) -> bool {
-        self.keys.is_empty()
+        self.n() == 0
     }
 
-    pub fn with_record(t: usize, record: Record<KT, DT>) -> Node<KT, DT> {
-        let mut node = Node::<KT, DT>::new(t);
-        node.keys.push(record.key());
-        node.records.push(record);
-        node
-    }
+    /*
+     * PROTECTED METHODS
+     */
 
     pub(crate) fn split_child(&mut self, i: usize) -> Result<(), &'static str> {
         if self.full() {
@@ -92,10 +99,9 @@ impl<KT: Ord + Copy, DT: Clone> Node<KT, DT> {
             } else {
                 return Err("Missing key");
             }
-            
+
             debug_assert!(y.leaf() || (y.keys.len() + 1 == y.children.len()));
             debug_assert!(z.leaf() || (z.keys.len() + 1 == z.children.len()));
-
         }
 
         // insert z as child
@@ -112,9 +118,11 @@ impl<KT: Ord + Copy, DT: Clone> Node<KT, DT> {
     }
 
     pub(crate) fn insert_nonfull(&mut self, record: Record<KT, DT>) -> Result<(), &'static str> {
-
         debug_assert!(!self.full(), "Attempt to insert_nonfull on a full node");
-        debug_assert!(self.leaf() || (self.children.len() == self.n() + 1), "Internal node does not have enough children");
+        debug_assert!(
+            self.leaf() || (self.children.len() == self.n() + 1),
+            "Internal node does not have enough children"
+        );
 
         let mut i = 0;
 
@@ -152,7 +160,7 @@ impl<KT: Ord + Copy, DT: Clone> Node<KT, DT> {
         Ok(())
     }
 
-    pub fn search(&self, key: KT) -> Result<Option<(&Node<KT, DT>, usize)>, &'static str> {
+    pub(crate) fn search(&self, key: KT) -> Result<Option<(&Node<KT, DT>, usize)>, &'static str> {
         // initialise the index
         let mut i: usize = 0;
 
