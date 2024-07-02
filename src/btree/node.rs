@@ -161,6 +161,7 @@ impl<KT: Ord + Copy, DT: Clone> Node<KT, DT> {
         Ok(())
     }
 
+    /// Search for a key in the node and its children
     pub(crate) fn search(&self, key: KT) -> Result<Option<(&Node<KT, DT>, usize)>, &'static str> {
         // initialise the index
         let mut i: usize = 0;
