@@ -120,9 +120,8 @@ impl<KT: Ord + Copy, DT: Clone> Node<KT, DT> {
 
     /// Insert a record into the node that is not full
     pub(crate) fn insert_nonfull(&mut self, record: Record<KT, DT>) -> Result<(), &'static str> {
-
         if self.full() {
-            return Err("Cannot insert_nonfull on a full node")
+            return Err("Cannot insert_nonfull on a full node");
         }
 
         let mut i = 0;
