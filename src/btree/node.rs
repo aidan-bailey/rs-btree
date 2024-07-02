@@ -53,6 +53,7 @@ impl<KT: Ord + Copy, DT: Clone> Node<KT, DT> {
      * PROTECTED METHODS
      */
 
+    /// Splits a child node
     pub(crate) fn split_child(&mut self, i: usize) -> Result<(), &'static str> {
         if self.full() {
             return Err("No space for child's key");
@@ -117,12 +118,12 @@ impl<KT: Ord + Copy, DT: Clone> Node<KT, DT> {
         Ok(())
     }
 
+    /// Insert a record into the node that is not full
     pub(crate) fn insert_nonfull(&mut self, record: Record<KT, DT>) -> Result<(), &'static str> {
-        debug_assert!(!self.full(), "Attempt to insert_nonfull on a full node");
-        debug_assert!(
-            self.leaf() || (self.children.len() == self.n() + 1),
-            "Internal node does not have enough children"
-        );
+
+        if self.full() {
+            return Err("Cannot insert_nonfull on a full node")
+        }
 
         let mut i = 0;
 
