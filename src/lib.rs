@@ -68,14 +68,14 @@ mod tests {
             let result = btree2.insert(Record::new(c, c));
             assert!(
                 result.is_ok(),
-                "Result for {} is not ok: {}",
+                "Btree2 Result for {} is not ok: {}",
                 c,
                 result.err().unwrap()
             );
             let result = btree3.insert(Record::new(c, c));
             assert!(
                 result.is_ok(),
-                "Result for {} is not ok: {}",
+                "Btree3 result for {} is not ok: {}",
                 c,
                 result.err().unwrap()
             );
